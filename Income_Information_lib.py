@@ -1,10 +1,12 @@
 from datetime import date
 import pandas as pd
 
-quarters = {"Q1":[date(2021,1,1),date(2021,3,31)],
+quarter_dates = {
+            "Q1":[date(2021,1,1),date(2021,3,31)],
             "Q2":[date(2021,4,1),date(2021,6,30)],
             "Q3":[date(2021,7,1),date(2021,9,30)],
-            "Q4":[date(2021,10,1),date(2021,12,31)]}
+            "Q4":[date(2021,10,1),date(2021,12,31)]
+            }
 
 class Pay_Slip:
     def __init__(self,data):
@@ -116,7 +118,7 @@ class Taxable_Year:
         self.year_income_info["Percent Taxed"] = 0
 
         self.pay_slips = []
-        self.year_quarters = {}
+        self.quarters = {}
 
     def __str__(self):
         string = f"------------------------ Tax Year: {self.year} ------------------------\n\n"
@@ -127,26 +129,26 @@ class Taxable_Year:
         string += "----------------------------------------------------------------\n\n"
                   
         
-        for quarter in self.year_quarters:
-            string += self.year_quarters[quarter].__str__()
+        for quarter in self.quarters:
+            string += self.quarters[quarter].__str__()
 
         string += "----------------------------------------------------------------\n\n"
 
         return string
 
     def Add_Pay_Slip_To_Quarter(self, pay_slip):
-        for quarter in quarters:
-                if (pay_slip.pay_date.month >= quarters[quarter][0].month and 
-                    pay_slip.pay_date.month <= quarters[quarter][1].month):
+        for quarter in quarter_dates:
+                if (pay_slip.pay_date.month >= quarter_dates[quarter][0].month and 
+                    pay_slip.pay_date.month <= quarter_dates[quarter][1].month):
                     
-                    if (pay_slip.pay_date.day >= quarters[quarter][0].day and 
-                        pay_slip.pay_date.day <= quarters[quarter][1].day):
+                    if (pay_slip.pay_date.day >= quarter_dates[quarter][0].day and 
+                        pay_slip.pay_date.day <= quarter_dates[quarter][1].day):
                         
-                        if quarter not in self.year_quarters:
-                            self.year_quarters[quarter] = Quarter(quarter)
-                            self.year_quarters[quarter].income_data_for_quarter.append(pay_slip)
+                        if quarter not in self.quarters:
+                            self.quarters[quarter] = Quarter(quarter)
+                            self.quarters[quarter].income_data_for_quarter.append(pay_slip)
                         else:
-                            self.year_quarters[quarter].income_data_for_quarter.append(pay_slip)
+                            self.quarters[quarter].income_data_for_quarter.append(pay_slip)
 
     def Update_Income_Values(self):
 
@@ -178,8 +180,8 @@ class Taxable_Year:
             self.Add_Pay_Slip_To_Quarter(pay_slip)
         
     def Update_Quarters(self):
-        for quarter in self.year_quarters:
-            self.year_quarters[quarter].Update_Income_Values()
+        for quarter in self.quarters:
+            self.quarters[quarter].Update_Income_Values()
 
     def Update_Taxable_Year(self):
         self.Update_Income_Values()
