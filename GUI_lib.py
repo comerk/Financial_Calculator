@@ -34,42 +34,39 @@ class App(tk.Tk):
         )
         self.data_select_frm.grid(row=1, column=0, columnspan=2,sticky="EW")
 
+        # set up information frame
         self.info_frm = Information_Frame(
             master=self
         )
         self.info_frm.grid(row=2, column=0, columnspan=2,sticky="EW")
 
-        self.city_tax_frm = tk.Frame(master=self)
+        # set up city tax frame
+        self.city_tax_frm = City_Tax_Frame(master=self)
         self.city_tax_frm.grid(row=1,column=2,rowspan=2,sticky="NSEW")
-        self.city_tax_frm.rowconfigure(0,weight=1,minsize=35)
-        self.city_tax_frm.columnconfigure(0,weight=1,minsize=200)
-        test = tk.Label(master=self.city_tax_frm,text="Hello",relief="sunken",borderwidth=20)
-        test.grid(row=0, column=0,sticky="NSEW")
-
-    
 
 class File_Explorer_Frame(tk.Frame):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        for index in range(0,1):
-            self.columnconfigure(index, weight=1, minsize=35)
+        self.columnconfigure(0, weight=2, minsize=450)
+        self.columnconfigure(1, weight=1, minsize=45)
         self.rowconfigure(0, weight=1, minsize=35)
 
         self.file_browse_btn = tk.Button(
             self,
             text = "Browse Files",
             font=("Arial", 12),
-            borderwidth=2,
+            borderwidth=5,
             command = self.Browse_Files,
         )
-        self.file_browse_btn.grid(row=0, column=2, sticky="NSE")
+        self.file_browse_btn.grid(row=0, column=1, sticky="NSEW")
 
         self.file_selected_lbl = tk.Label(
             self,
             text="Select Income File",
             font=("Arial", 12),
             relief=tk.GROOVE,
+            borderwidth=5
         )
         self.file_selected_lbl.grid(row=0, column=0,sticky="NSEW")
     
@@ -91,24 +88,12 @@ class Data_Select_Frame(tk.Frame):
         super().__init__(**kwargs)
 
         # Set up grid rows
-        self.columnconfigure(0, weight=1, minsize=200)
-        self.columnconfigure(1, weight=1, minsize=200)
+        for col in range(0,2):
+            self.columnconfigure(col, weight=1, minsize=200)
         self.rowconfigure(0, weight=1, minsize=35)
 
         self.Setup_Year_Select_Cmbbx()
         self.Setup_Quarter_Select_Cmbbx()
-#
-        #self.city_tax_rate_scl = tk.Scale(
-        #    master=self,
-        #    from_=0,
-        #    to=25,
-        #    resolution=0.1,
-        #    orient=tk.HORIZONTAL,
-        #    label="City Tax %:",
-        #    relief="raised",
-        #    borderwidth=5
-        #)
-        #self.city_tax_rate_scl.grid(row=0,column=2,sticky="NSEW")
     
     # Widget Setup Methods
     def Setup_Year_Select_Cmbbx(self):
@@ -196,14 +181,58 @@ class Information_Frame(tk.Frame):
         for row in range(0,3):
             for col in range(0, 2):
                 if  row == 0 or col < 2:
-                    data_blocks.append(tk.Label(master=self,text="Hello",justify='center',relief="raised",borderwidth=10))
+                    data_blocks.append(
+                        tk.Label(
+                            master=self,
+                            text="Hello",
+                            justify='center',
+                            relief="raised",
+                            borderwidth=5
+                        )
+                    )
                     data_blocks[-1].grid(row=row,column=col,sticky="NSEW")
 
-        #image = Image.open("./images/money.jpg")
-        #render = ImageTk.PhotoImage(image)
-        #image_lbl = tk.Label(master=self, image=render)
-        #image_lbl.image = render
-        #image_lbl.grid(row=1,column=2, rowspan=2)
-            
-            
+class City_Tax_Frame(tk.Frame):
+    def __init__(self,**kargs):
+        super().__init__(**kargs)
         
+        self.rowconfigure(0, weight=1,minsize=75)
+        self.rowconfigure(1, weight=1,minsize=70)
+        self.rowconfigure(2, weight=1,minsize=100)
+        self.rowconfigure(3, weight=1)
+        self.columnconfigure(0,weight=1,minsize=200)
+            
+        self.sub_frm = tk.Frame(
+            master=self,
+            relief="raised",
+            borderwidth=5
+        )
+        self.sub_frm.grid(row=0,column=0,rowspan=2,sticky="NSEW")
+        
+        self.sub_frm.rowconfigure(0, weight=1,minsize=75)
+        self.sub_frm.rowconfigure(1, weight=1,minsize=60)
+        self.sub_frm.columnconfigure(0,weight=1,minsize=190)
+
+        self.city_tax_rate_scl = tk.Scale(
+            master=self.sub_frm,
+            from_=0,
+            to=25,
+            resolution=0.1,
+            orient=tk.HORIZONTAL,
+            label="City Tax %:",
+            borderwidth=2
+        )
+        self.city_tax_rate_scl.grid(row=0,column=0,sticky="NSEW")
+
+        self.city_tax_lbl = tk.Label(
+            master=self.sub_frm,
+            text="Hello",
+            relief="ridge"
+        )
+        self.city_tax_lbl.grid(row=1, column=0,sticky="NSEW")
+
+        image = Image.open("./images/money.jpg")
+        render = ImageTk.PhotoImage(image)
+        image_lbl = tk.Label(master=self, image=render)
+        image_lbl.image = render    
+        image_lbl.grid(row=2,column=0, rowspan=2)
