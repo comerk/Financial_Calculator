@@ -46,17 +46,17 @@ class Pay_Slip:
 class Quarter:
     def __init__(self,quarter):
         self.quarter = quarter
-        self.quarter_stats = {
+        self.quarter_income_info = {
             "Gross Income": float,
             "Net Income": float,
             "Taxed Amount": float,
             "Percent Taxed":float
             }
 
-        self.quarter_stats["Gross Income"] = 0
-        self.quarter_stats["Net Income"] = 0
-        self.quarter_stats["Taxed Amount"] = 0
-        self.quarter_stats["Percent Taxed"] = 0
+        self.quarter_income_info["Gross Income"] = 0
+        self.quarter_income_info["Net Income"] = 0
+        self.quarter_income_info["Taxed Amount"] = 0
+        self.quarter_income_info["Percent Taxed"] = 0
 
         self.income_data_for_quarter = []
 
@@ -64,8 +64,8 @@ class Quarter:
         self.Update_Income_Values()
 
         string = f"{self.quarter} Details\n\n"
-        for stat in self.quarter_stats:
-            string += "Total " + stat + ": " + str(self.quarter_stats[stat]) + "\t"
+        for stat in self.quarter_income_info:
+            string += "Total " + stat + ": " + str(self.quarter_income_info[stat]) + "\t"
             if stat == "Net Income" or stat == "Percent Taxed":
                 string += '\n'
         string += "_________________________________________________________\n\n"
@@ -79,27 +79,27 @@ class Quarter:
         return string
 
     def Update_Income_Values(self):
-        self.quarter_stats["Gross Income"] = 0
-        self.quarter_stats["Net Income"] = 0
-        self.quarter_stats["Taxed Amount"] = 0
-        self.quarter_stats["Percent Taxed"] = 0
+        self.quarter_income_info["Gross Income"] = 0
+        self.quarter_income_info["Net Income"] = 0
+        self.quarter_income_info["Taxed Amount"] = 0
+        self.quarter_income_info["Percent Taxed"] = 0
 
         for pay_slip in self.income_data_for_quarter:
-            self.quarter_stats["Gross Income"] += pay_slip.pay_slip_info["Gross Income"]
-            self.quarter_stats["Net Income"] += pay_slip.pay_slip_info["Net Income"]
-            self.quarter_stats["Taxed Amount"] += pay_slip.pay_slip_info["Taxed Amount"]
+            self.quarter_income_info["Gross Income"] += pay_slip.pay_slip_info["Gross Income"]
+            self.quarter_income_info["Net Income"] += pay_slip.pay_slip_info["Net Income"]
+            self.quarter_income_info["Taxed Amount"] += pay_slip.pay_slip_info["Taxed Amount"]
 
-        self.quarter_stats["Percent Taxed"] = round(
-            self.quarter_stats["Taxed Amount"] / self.quarter_stats["Gross Income"],2
+        self.quarter_income_info["Percent Taxed"] = round(
+            self.quarter_income_info["Taxed Amount"] / self.quarter_income_info["Gross Income"],2
             )
-        self.quarter_stats["Gross Income"] = round(
-            self.quarter_stats["Gross Income"],2
+        self.quarter_income_info["Gross Income"] = round(
+            self.quarter_income_info["Gross Income"],2
             )
-        self.quarter_stats["Net Income"] = round(
-            self.quarter_stats["Net Income"],2
+        self.quarter_income_info["Net Income"] = round(
+            self.quarter_income_info["Net Income"],2
             )
-        self.quarter_stats["Taxed Amount"] = round(
-            self.quarter_stats["Taxed Amount"],2
+        self.quarter_income_info["Taxed Amount"] = round(
+            self.quarter_income_info["Taxed Amount"],2
             )
 
 class Taxable_Year:
@@ -206,7 +206,7 @@ def Sort_Data_Into_Years(raw_data):
 
     for year in taxable_years:
         taxable_years[year].Sort_Income_Data_Into_Quarters()
-        taxable_years[year].Update_Taxable_Year
+        taxable_years[year].Update_Taxable_Year()
 
     return taxable_years
 

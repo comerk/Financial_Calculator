@@ -11,8 +11,8 @@ class App(tk.Tk):
 
         #inharit Tk Class methods and variables
         super().__init__()
-        self.geometry("600x300")
-        self.minsize(width=600, height=400)
+        self.geometry("600x400")
+        self.resizable(0,0)
 
         #self.resizable(False, False)
         self.title("Year Income Info")
@@ -39,6 +39,7 @@ class App(tk.Tk):
             master=self
         )
         self.info_frm.grid(row=2, column=0, columnspan=2,sticky="EW")
+        self.data_select_frm.info_frm = self.info_frm
 
         # set up city tax frame
         self.city_tax_frm = City_Tax_Frame(master=self)
@@ -145,16 +146,37 @@ class Data_Select_Frame(tk.Frame):
             self.Update_Selections
         )
 
-    # Binded Methods
+    # Updates Combo Boxes with the selected value
     def Update_Selections(self, *args):
-        if self.year_selected != "Select A Year To View":
+        if self.year_select_cmbbx.get() != "Select A Year To View":
             self.year_selected=self.year_select_cmbbx.get()
             self.year_select_cmbbx.set(self.year_selected)
             
-        if self.quarter_selected != "Select A Quarter To View":
+        if self.quarter_select_cmbbx.get() != "Select A Quarter To View":
             self.quarter_selected=self.quarter_select_cmbbx.get()
             self.quarter_select_cmbbx.set(self.quarter_selected)
 
+        self.year_selected = self.year_selected
+        self.quarter_selected = self.quarter_selected
+        
+        for row in range(0,3):
+            for col in range(0,2):
+                if len(str(self.year_selected)) == 4:
+                    self.year_selected = int(self.year_selected)
+                    year_info = income_data[self.year_selected].year_income_info
+                    if col == 0:
+                        year_info = list(year_info.values())
+                        info = '{:,}'.format(year_info[row])
+                        self.info_frm.data_sources["Blocks"][row*2].configure(text=f"${info}")
+
+                    if len(str(self.quarter_selected)) == 2:
+                        quarter_info = income_data[self.year_selected].quarters[self.quarter_selected].quarter_income_info
+                        if col == 1:
+                            quarter_info = list(quarter_info.values())
+                            info = '{:,}'.format(quarter_info[row])
+                            self.info_frm.data_sources["Blocks"][col+(row*2)].configure(text=f"${info}")
+
+    # Updates Combo Boxes for dropdown selection
     def Refresh(self, *args):
         global income_data
 
@@ -171,27 +193,57 @@ class Information_Frame(tk.Frame):
     def __init__(self, **kargs):
         super().__init__(**kargs)
 
-        for row in range(0,3):
-            self.rowconfigure(row, weight=1, minsize=110)
+        data_labels = (
+            ["Year Gross Income","Year Net Income","Year Taxed Amount"],
+            ["Quarter Gross Income","Quarter Net Income","Quarter Taxed Amount"]
+            )
         
-        for col in range(0,2):
-            self.columnconfigure(col, weight=1, minsize=200)
+        self.data_sources = {"Frames": [], "Blocks":[]}
 
-        data_blocks = []
         for row in range(0,3):
+            #Information Frame Grid Setup -> Row
+            self.rowconfigure(row, weight=1, minsize=110)
             for col in range(0, 2):
-                if  row == 0 or col < 2:
-                    data_blocks.append(
-                        tk.Label(
-                            master=self,
-                            text="Hello",
-                            justify='center',
-                            relief="raised",
-                            borderwidth=5
-                        )
-                    )
-                    data_blocks[-1].grid(row=row,column=col,sticky="NSEW")
+                #Information Frame Grid Setup -> Col
+                self.columnconfigure(col, weight=1, minsize=200)
 
+                #Create Frame for one of Information Frame's Grid sectors
+                self.data_sources["Frames"].append(tk.Frame(master=self))
+
+                #Setup New Frame's own grid
+                self.data_sources["Frames"][-1].rowconfigure(0,weight=1, minsize=25)
+                self.data_sources["Frames"][-1].rowconfigure(1,weight=1, minsize=75)
+                self.data_sources["Frames"][-1].columnconfigure(0,weight=1, minsize=200)
+
+                #Create header label for the internal frame
+                header_lbl=tk.Label(
+                        master=self.data_sources["Frames"][-1],
+                        text=data_labels[col][row],
+                        justify='center',
+                        relief="raised",
+                        borderwidth=5,
+                        font=("Arial", 12),
+                    )
+
+                #Create data block label for the internal frame
+                self.data_sources["Blocks"].append(
+                    tk.Label(
+                        master=self.data_sources["Frames"][-1],
+                        text="Data Pending...",
+                        justify='center',
+                        relief="raised",
+                        font=("Arial", 16),
+                    )
+                )
+                
+                #Place header inside internal frame at (0,0)
+                header_lbl.grid(row=0,column=0,sticky="EW")
+                #Place data block inside internal frame at (1,0)
+                self.data_sources["Blocks"][-1].grid(row=1,column=0,sticky="NSEW")
+
+                #Assign internal frame to Information Frame's grid at (row,col)
+                self.data_sources["Frames"][-1].grid(row=row,column=col,sticky="NSEW")
+       
 class City_Tax_Frame(tk.Frame):
     def __init__(self,**kargs):
         super().__init__(**kargs)
