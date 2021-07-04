@@ -44,6 +44,7 @@ class App(tk.Tk):
         # set up city tax frame
         self.city_tax_frm = City_Tax_Frame(master=self)
         self.city_tax_frm.grid(row=1,column=2,rowspan=2,sticky="NSEW")
+        self.city_tax_frm.info_frm = self.info_frm
 
 class File_Explorer_Frame(tk.Frame):
     def __init__(self, **kwargs):
@@ -127,6 +128,7 @@ class Data_Select_Frame(tk.Frame):
         # Set up quarter dropdown
         self.quarter_selected = tk.StringVar()
         self.quarter_selected.set("Select A Quarter To View")
+        self.quarter_selected_previous = self.quarter_selected
 
         self.quarter_select_cmbbx = ttk.Combobox(
             master=self,
@@ -148,7 +150,7 @@ class Data_Select_Frame(tk.Frame):
 
     # Updates Combo Boxes with the selected value
     def Update_Selections(self, *args):
-        if self.year_select_cmbbx.get() != "Select A Year To View":
+        if self.year_select_cmbbx.get() != self.quarter_selected_previous:
             self.year_selected=self.year_select_cmbbx.get()
             self.year_select_cmbbx.set(self.year_selected)
             
@@ -158,7 +160,11 @@ class Data_Select_Frame(tk.Frame):
 
         self.year_selected = self.year_selected
         self.quarter_selected = self.quarter_selected
+
+        self.Update_Info_Panels()
         
+    def Update_Info_Panels(self):
+        #Updates all information panels about for the year and quarter selected
         for row in range(0,3):
             for col in range(0,2):
                 if len(str(self.year_selected)) == 4:
@@ -210,7 +216,7 @@ class Information_Frame(tk.Frame):
                 #Create Frame for one of Information Frame's Grid sectors
                 self.data_sources["Frames"].append(tk.Frame(master=self))
 
-                #Setup New Frame's own grid
+                #Setup Internal Frame's own grid
                 self.data_sources["Frames"][-1].rowconfigure(0,weight=1, minsize=25)
                 self.data_sources["Frames"][-1].rowconfigure(1,weight=1, minsize=75)
                 self.data_sources["Frames"][-1].columnconfigure(0,weight=1, minsize=200)
@@ -223,6 +229,7 @@ class Information_Frame(tk.Frame):
                         relief="raised",
                         borderwidth=5,
                         font=("Arial", 12),
+                        bg="#FFD700"
                     )
 
                 #Create data block label for the internal frame
@@ -233,6 +240,7 @@ class Information_Frame(tk.Frame):
                         justify='center',
                         relief="raised",
                         font=("Arial", 16),
+                        bg="#aeaeae"
                     )
                 )
                 
@@ -257,7 +265,8 @@ class City_Tax_Frame(tk.Frame):
         self.sub_frm = tk.Frame(
             master=self,
             relief="raised",
-            borderwidth=5
+            borderwidth=5,
+            bg="#c4d6e7"
         )
         self.sub_frm.grid(row=0,column=0,rowspan=2,sticky="NSEW")
         
@@ -272,14 +281,18 @@ class City_Tax_Frame(tk.Frame):
             resolution=0.1,
             orient=tk.HORIZONTAL,
             label="City Tax %:",
-            borderwidth=2
+            borderwidth=2,
+            bg="#c4d6e7"
         )
         self.city_tax_rate_scl.grid(row=0,column=0,sticky="NSEW")
+        self.city_tax_rate_scl.bind("<ButtonRelease-1>", self.Refresh)
 
         self.city_tax_lbl = tk.Label(
             master=self.sub_frm,
-            text="Hello",
-            relief="ridge"
+            text="Data Pending...",
+            relief="ridge",
+            font=("Arial", 16),
+            bg="#e7c4c4"
         )
         self.city_tax_lbl.grid(row=1, column=0,sticky="NSEW")
 
@@ -288,3 +301,16 @@ class City_Tax_Frame(tk.Frame):
         image_lbl = tk.Label(master=self, image=render)
         image_lbl.image = render    
         image_lbl.grid(row=2,column=0, rowspan=2)
+
+    def Refresh(self, *args):
+        quarter_gross=self.info_frm.data_sources["Blocks"][1]["text"]
+
+        disallowed_chars = ["$",","]
+        for disallowed_char in disallowed_chars:
+            quarter_gross = quarter_gross.replace(disallowed_char,"")
+
+        quarter_city_taxes = round(
+            (self.city_tax_rate_scl.get()/100)*float(quarter_gross),
+            2
+        )
+        self.city_tax_lbl.configure(text=f"${quarter_city_taxes}")
