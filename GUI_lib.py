@@ -12,7 +12,7 @@ class App(tk.Tk):
         #inharit Tk Class methods and variables
         super().__init__()
         self.geometry("600x400")
-        self.resizable(0,0)
+        self.resizable(False,False)
 
         #self.resizable(False, False)
         self.title("Year Income Info")
@@ -28,23 +28,25 @@ class App(tk.Tk):
         )
         self.file_select_frm.grid(row=0, column=0, columnspan=3, sticky="EW")
 
-        # set up data select frame
-        self.data_select_frm = Data_Select_Frame(
-            master=self, 
-        )
-        self.data_select_frm.grid(row=1, column=0, columnspan=2,sticky="EW")
-
         # set up information frame
         self.info_frm = Information_Frame(
             master=self
         )
         self.info_frm.grid(row=2, column=0, columnspan=2,sticky="EW")
-        self.data_select_frm.info_frm = self.info_frm
 
         # set up city tax frame
         self.city_tax_frm = City_Tax_Frame(master=self)
         self.city_tax_frm.grid(row=1,column=2,rowspan=2,sticky="NSEW")
         self.city_tax_frm.info_frm = self.info_frm
+
+        # set up data select frame
+        self.data_select_frm = Data_Select_Frame(
+            master=self, 
+        )
+        self.data_select_frm.grid(row=1, column=0, columnspan=2,sticky="EW")
+        self.data_select_frm.city_tax_frm = self.city_tax_frm
+        self.data_select_frm.info_frm = self.info_frm
+        
 
 class File_Explorer_Frame(tk.Frame):
     def __init__(self, **kwargs):
@@ -103,6 +105,7 @@ class Data_Select_Frame(tk.Frame):
         # Set up year dropdown
         self.year_selected = tk.StringVar()
         self.year_selected.set("Select A Year To View")
+        self.year_selected_previous = self.year_selected
 
         self.year_select_cmbbx = ttk.Combobox(
             master=self,
@@ -113,7 +116,7 @@ class Data_Select_Frame(tk.Frame):
             )
         self.year_select_cmbbx.grid(row=0, column=0,sticky="NSEW")
 
-        # Set up bindings
+        #Set up binding actions for year cmbbx
         self.year_select_cmbbx.bind(
             "<Enter>", 
             self.Refresh
@@ -139,6 +142,7 @@ class Data_Select_Frame(tk.Frame):
             )
         self.quarter_select_cmbbx.grid(row=0, column=1,sticky="NSEW")
 
+        #Set up binding actions for quarter cmbbx
         self.quarter_select_cmbbx.bind(
             "<Enter>",
             self.Refresh
@@ -150,26 +154,34 @@ class Data_Select_Frame(tk.Frame):
 
     # Updates Combo Boxes with the selected value
     def Update_Selections(self, *args):
-        if self.year_select_cmbbx.get() != self.quarter_selected_previous:
+        if self.year_select_cmbbx.get() != self.year_selected_previous:
             self.year_selected=self.year_select_cmbbx.get()
+            self.year_selected_previous=self.year_selected
             self.year_select_cmbbx.set(self.year_selected)
             
-        if self.quarter_select_cmbbx.get() != "Select A Quarter To View":
-            self.quarter_selected=self.quarter_select_cmbbx.get()
+            #Because year was changed quarter cmbbx needs to be reset
+            self.quarter_selected = "Select A Quarter To View"
+            self.quarter_selected_previous = self.quarter_selected
             self.quarter_select_cmbbx.set(self.quarter_selected)
-
-        self.year_selected = self.year_selected
-        self.quarter_selected = self.quarter_selected
-
-        self.Update_Info_Panels()
+            
+        if self.quarter_select_cmbbx.get() != self.quarter_selected_previous:
+            self.quarter_selected=self.quarter_select_cmbbx.get()
+            self.quarter_selected_previous = self.quarter_selected
+            self.quarter_select_cmbbx.set(self.quarter_selected)
+                
+        self.Update_Info_Panels()    
+        self.city_tax_frm.Refresh()
+        
         
     def Update_Info_Panels(self):
-        #Updates all information panels about for the year and quarter selected
+        #Updates all information panels for the year and quarter selected
         for row in range(0,3):
             for col in range(0,2):
                 if len(str(self.year_selected)) == 4:
                     self.year_selected = int(self.year_selected)
                     year_info = income_data[self.year_selected].year_income_info
+
+                    #Sets year info blocks to the data from the year selected
                     if col == 0:
                         year_info = list(year_info.values())
                         info = '{:,}'.format(year_info[row])
@@ -177,18 +189,25 @@ class Data_Select_Frame(tk.Frame):
 
                     if len(str(self.quarter_selected)) == 2:
                         quarter_info = income_data[self.year_selected].quarters[self.quarter_selected].quarter_income_info
+                        
+                        #Sets year info blocks to the data from the quarter selected
                         if col == 1:
                             quarter_info = list(quarter_info.values())
                             info = '{:,}'.format(quarter_info[row])
                             self.info_frm.data_sources["Blocks"][col+(row*2)].configure(text=f"${info}")
+                    else:
+                        if col == 1:
+                            self.info_frm.data_sources["Blocks"][col+(row*2)].configure(text=f"Data Pending...")
 
     # Updates Combo Boxes for dropdown selection
     def Refresh(self, *args):
         global income_data
 
+        #Sets selections for year select combobox to the available years in income data
         selectable_years = list(map(str,list(income_data)))
         self.year_select_cmbbx.config(values=selectable_years)
 
+        #Attempts to set selections for quarter select combobox to the available quarters in the year selected
         try:
             selectable_quarters = list(map(str,list(income_data[int(self.year_selected)].quarters)))
             self.quarter_select_cmbbx.config(values=selectable_quarters)
@@ -199,11 +218,13 @@ class Information_Frame(tk.Frame):
     def __init__(self, **kargs):
         super().__init__(**kargs)
 
+        #Creates tuple of information labels
         data_labels = (
             ["Year Gross Income","Year Net Income","Year Taxed Amount"],
             ["Quarter Gross Income","Quarter Net Income","Quarter Taxed Amount"]
             )
         
+        #Creates dict where internal frames and their data are stored
         self.data_sources = {"Frames": [], "Blocks":[]}
 
         for row in range(0,3):
@@ -256,12 +277,14 @@ class City_Tax_Frame(tk.Frame):
     def __init__(self,**kargs):
         super().__init__(**kargs)
         
+        #Configure city tax frame grid
         self.rowconfigure(0, weight=1,minsize=75)
         self.rowconfigure(1, weight=1,minsize=70)
         self.rowconfigure(2, weight=1,minsize=100)
         self.rowconfigure(3, weight=1)
         self.columnconfigure(0,weight=1,minsize=200)
             
+        #Configure sub frame inside city tax frame
         self.sub_frm = tk.Frame(
             master=self,
             relief="raised",
@@ -270,10 +293,12 @@ class City_Tax_Frame(tk.Frame):
         )
         self.sub_frm.grid(row=0,column=0,rowspan=2,sticky="NSEW")
         
+        #Configure sub frame grid
         self.sub_frm.rowconfigure(0, weight=1,minsize=75)
         self.sub_frm.rowconfigure(1, weight=1,minsize=60)
         self.sub_frm.columnconfigure(0,weight=1,minsize=190)
 
+        #Configure city tax rate scale
         self.city_tax_rate_scl = tk.Scale(
             master=self.sub_frm,
             from_=0,
@@ -287,6 +312,7 @@ class City_Tax_Frame(tk.Frame):
         self.city_tax_rate_scl.grid(row=0,column=0,sticky="NSEW")
         self.city_tax_rate_scl.bind("<ButtonRelease-1>", self.Refresh)
 
+        #Configure city tax lable
         self.city_tax_lbl = tk.Label(
             master=self.sub_frm,
             text="Data Pending...",
@@ -296,21 +322,26 @@ class City_Tax_Frame(tk.Frame):
         )
         self.city_tax_lbl.grid(row=1, column=0,sticky="NSEW")
 
+        #Import image and span it to fill open row spaces
         image = Image.open("./images/money.jpg")
         render = ImageTk.PhotoImage(image)
         image_lbl = tk.Label(master=self, image=render)
         image_lbl.image = render    
         image_lbl.grid(row=2,column=0, rowspan=2)
 
+    #Refreshes data in the city tax frame for the quarter and tax percent selected
     def Refresh(self, *args):
         quarter_gross=self.info_frm.data_sources["Blocks"][1]["text"]
 
-        disallowed_chars = ["$",","]
-        for disallowed_char in disallowed_chars:
-            quarter_gross = quarter_gross.replace(disallowed_char,"")
+        if quarter_gross != "Data Pending...":
+            disallowed_chars = ["$",","]
+            for disallowed_char in disallowed_chars:
+                quarter_gross = quarter_gross.replace(disallowed_char,"")
 
-        quarter_city_taxes = round(
-            (self.city_tax_rate_scl.get()/100)*float(quarter_gross),
-            2
-        )
-        self.city_tax_lbl.configure(text=f"${quarter_city_taxes}")
+            quarter_city_taxes = round(
+                (self.city_tax_rate_scl.get()/100)*float(quarter_gross),
+                2
+            )
+            self.city_tax_lbl.configure(text=f"${quarter_city_taxes}")
+        else:
+            self.city_tax_lbl.configure(text=f"Data Pending...")
