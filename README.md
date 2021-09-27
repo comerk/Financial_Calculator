@@ -3,6 +3,7 @@
 </p>
 
 # Income And Local Tax Calculator
+Install Requirments: pip install -r requirments.txt
 
 # How The Calculator Works
 
