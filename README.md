@@ -36,8 +36,15 @@ There are three seperate python source files in the project:
  - Income_Information_lib.py
  
 The source file Income_And_Local_Tax_Calculator is dependent on the other two source files to execute. The GUI_lib source file is used to setup the GUI that the user will interact with, while the Income_Information_lib source file is used to inport the excel file containing the payment information.
+
+To launch the application from the project directory:
+```
+$ python ./Source/Income_And_Local_Tax_Calculator.py
+```
  
 ## How The Calculator Works
+
+
 
 ---
 **Note**
