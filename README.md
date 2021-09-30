@@ -43,6 +43,16 @@ $ python ./Source/Income_And_Local_Tax_Calculator.py
 ```
  
 ## How The Calculator Works
+1. Click the "Browse Files" button in the top right corner of the application window
+2. Navigate to the excel file exported from the workday website you would like to import (See Note On Alternative)
+3. Click the "Open" button in the bottom right corner of your file explorer
+4. Select the year that you would like to view in the "Select A Year To View" dropdown. The "Year" data fields will then populate with that years data
+5. Select the quarter of the year your selected to view in the "Select A Quarter to View" dropdown. The "Quarter" data fields will then populate with that quarters data
+6. Select the amount your particular city taxes you based on your income by using the slider in the right corner of the application window. After a percentage is selected the tax amount owed to your city for that quarter will be displayed under the slider.
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/59189020/135364060-6e88a8bb-b325-4c3e-835e-5c5f06f18cfa.png">
+</p>
 
 
 
