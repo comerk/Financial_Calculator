@@ -29,6 +29,7 @@ To install all required dependencies needed to execute the script:
 ```
 $ pip install -r requirments.txt
 ```
+- **Note:** Currently some dependencies do **NOT** support **Python 3.10**, **Python 3.9.6** has been **CONFIRMED** to work with all dependencies found in requirment.txt
 ## Launch Application
 There are three seperate python source files in the project:
  - Income_And_Local_Tax_Calculator.py
