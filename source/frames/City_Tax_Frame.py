@@ -3,7 +3,7 @@ import tkinter as tk
 
 class City_Tax_Frame(tk.Frame):
     def __init__(self, tool_data, **kargs):
-        super().__init__(**kargs, relief="raised", borderwidth=5)
+        super().__init__(**kargs, relief="groove", borderwidth=5)
 
         self.tool_data = tool_data
 
