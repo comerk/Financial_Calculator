@@ -5,7 +5,7 @@ from matplotlib.ticker import FuncFormatter
 import numpy as np
 
 
-class Yearly_Income_Frame(tk.Frame):
+class Yearly_Stats_Frame(tk.Frame):
     def __init__(self, tool_data, **kwargs):
         super().__init__(**kwargs, relief="groove", borderwidth=5)
 
@@ -31,9 +31,9 @@ class Yearly_Income_Frame(tk.Frame):
     def refresh(self):
         years = list(map(str, list(self.tool_data["file_data"])))[::-1]
 
-        values = {"gross income": [], "net income": []}
+        values = {"gross": [], "net": [], "taxed": []}
         for year in years:
-            values["gross income"].append(
+            values["gross"].append(
                 round(
                     self.tool_data["file_data"][int(year)].year_income_info[
                         "Gross Income"
@@ -42,7 +42,7 @@ class Yearly_Income_Frame(tk.Frame):
                     2,
                 )
             )
-            values["net income"].append(
+            values["net"].append(
                 round(
                     self.tool_data["file_data"][int(year)].year_income_info[
                         "Net Income"
@@ -51,15 +51,24 @@ class Yearly_Income_Frame(tk.Frame):
                     2,
                 )
             )
+            values["taxed"].append(
+                round(
+                    self.tool_data["file_data"][int(year)].year_income_info[
+                        "Taxed Amount"
+                    ]
+                    / 1000,
+                    2,
+                )
+            )
 
         x = np.arange(len(years))
-        width = 0.4
+        width = 0.2
         multiplier = 0
 
         for attribute, measurement in values.items():
             offset = width * multiplier
             rects = self.ax.barh(x + offset, measurement, width, label=attribute)
-            self.ax.bar_label(rects, padding=3)
+            self.ax.bar_label(rects, padding=1)
             multiplier += 1
 
         def format(y, pos):
@@ -67,10 +76,10 @@ class Yearly_Income_Frame(tk.Frame):
 
         self.ax.yaxis.set_major_formatter(FuncFormatter(format))
         self.ax.set_xlabel("Thousands of Dollars")
-        self.ax.set_title("Yearly Gross vs Net Income")
-        self.ax.set_yticks(x + 0.5 * width, years)
-        self.ax.legend(loc="best", ncols=2)
-        self.ax.set_xlim(0, max(values["gross income"]) + 20)
+        self.ax.set_title("Yearly Stats")
+        self.ax.set_yticks(x + width, years)
+        self.ax.legend(fontsize="small", loc="best", ncols=3)
+        self.ax.set_xlim(0, max(values["gross"]) + 5)
 
         canvas = FigureCanvasTkAgg(self.fig, master=self)
         canvas_widget = canvas.get_tk_widget()

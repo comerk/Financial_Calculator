@@ -21,7 +21,7 @@ class File_Explorer_Frame(tk.Frame):
             text="Browse Files",
             font=("Arial", 12),
             borderwidth=5,
-            command=self.Browse_Files,
+            command=self.browse_files,
         )
         self.file_browse_btn.grid(row=0, column=1, sticky="NSEW")
 
@@ -34,7 +34,7 @@ class File_Explorer_Frame(tk.Frame):
         )
         self.file_selected_lbl.grid(row=0, column=0, sticky="NSEW")
 
-    def Browse_Files(self):
+    def browse_files(self):
         file_selected = filedialog.askopenfilename(
             initialdir="c:/",
             title="Select a File",
@@ -44,4 +44,4 @@ class File_Explorer_Frame(tk.Frame):
         if len(file_selected) > 0:
             self.file_selected_lbl.configure(text=file_selected.split("/")[-1])
             self.tool_data["file_data"] = Income_Info.Import_Income_Data(file_selected)
-            self.tool_data["yearly_income_frm_ref"].refresh()
+            self.tool_data["yearly_stats_frm_ref"].refresh()
