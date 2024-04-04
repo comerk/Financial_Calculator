@@ -1,4 +1,3 @@
-from os import wait4
 import tkinter as tk
 import matplotlib.pyplot as plt
 
